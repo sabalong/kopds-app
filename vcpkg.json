@@ -1,0 +1,13 @@
+{
+  "name": "kopds-app",
+  "version-string": "0.1.0",
+  "builtin-baseline": "82216afaef8cccfd2a395c839b807801f366879e",
+  "dependencies": [
+    {
+      "name": "wt",
+      "features": [
+        "postgresql"
+      ]
+    }
+  ]
+}

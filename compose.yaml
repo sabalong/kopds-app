@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: kopds
+      POSTGRES_USER: kopds
+      POSTGRES_PASSWORD: kopds
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kopds -d kopds"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  app:
+    image: kopds-app:local
+    build:
+      context: .
+    environment:
+      DATABASE_URL: host=postgres port=5432 dbname=kopds user=kopds password=kopds
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    restart: on-failure
+
+volumes:
+  postgres-data:

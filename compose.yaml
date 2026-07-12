@@ -11,6 +11,8 @@ services:
       timeout: 3s
       retries: 10
       start_period: 5s
+    ports:
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
@@ -19,7 +21,7 @@ services:
     build:
       context: .
     environment:
-      DATABASE_URL: host=postgres port=5432 dbname=kopds user=kopds password=kopds
+      DATABASE_URL: host=postgres port=5432 dbname=kopds user=kopds password=kopds connect_timeout=3
     depends_on:
       postgres:
         condition: service_healthy

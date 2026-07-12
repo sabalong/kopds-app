@@ -84,6 +84,7 @@ WORKDIR /opt/kopds
 COPY --from=builder /src/build/kopds-app ./bin/kopds-app
 COPY --from=builder /opt/runtime/lib ./lib
 COPY --from=builder /opt/runtime/wt ./share/wt
+COPY static ./static
 
 ENV LD_LIBRARY_PATH=/opt/kopds/lib
 

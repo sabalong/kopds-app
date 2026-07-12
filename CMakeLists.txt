@@ -12,7 +12,26 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(Wt CONFIG REQUIRED)
 
-add_executable(kopds-app src/main.cpp)
+add_executable(kopds-app
+  src/main.cpp
+  src/bootstrap/KopdsApplication.cpp
+  src/shared/infrastructure/Database.cpp
+  src/shared/presentation/ConfirmationDialog.cpp
+  src/contexts/membership/application/MemberService.cpp
+  src/contexts/membership/infrastructure/PostgresMemberRepository.cpp
+  src/contexts/membership/presentation/MembersPage.cpp
+  src/contexts/contribution_configuration/application/ContributionTypeService.cpp
+  src/contexts/contribution_configuration/infrastructure/PostgresContributionTypeRepository.cpp
+  src/contexts/contribution_configuration/presentation/ContributionTypesPage.cpp
+  src/contexts/system_health/application/GetSystemStatus.cpp
+  src/contexts/system_health/infrastructure/PostgresHealthCheck.cpp
+  src/contexts/system_health/presentation/SystemStatusPage.cpp
+  src/shell/AppShell.cpp
+  src/shell/DashboardPage.cpp
+  src/shell/NotFoundPage.cpp
+)
+
+target_include_directories(kopds-app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_link_libraries(kopds-app
   PRIVATE

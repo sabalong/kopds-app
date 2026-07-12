@@ -50,17 +50,29 @@ cmake --build --preset linux-x64
 ## Run
 
 ```sh
-./build/macos-arm64/kopds-app --http-address 127.0.0.1 --http-port 8080
+./build/macos-arm64/kopds-app \
+  --http-address 127.0.0.1 \
+  --http-port 8080 \
+  --docroot . \
+  --resources-dir ./build/macos-arm64/vcpkg_installed/arm64-osx-dynamic/share/wt/resources
 ```
 
-Then open <http://127.0.0.1:8080>.
+Then open <http://127.0.0.1:8080>. The application provides `/dashboard` and
+`/system-status` routes through a responsive Bootstrap 5 shell.
 
-When `DATABASE_URL` is set, the application runs `select 1` before starting the
-HTTP server and exits if PostgreSQL cannot be reached. Without `DATABASE_URL`,
-local non-container runs continue with the database status shown as not
-configured.
+The System Status page runs `select 1` when it is opened or refreshed. Database
+failures are displayed as a degraded status and do not stop the application.
+Without `DATABASE_URL`, PostgreSQL is shown as not configured.
 
 ## Run with PostgreSQL and Compose
+
+Apply the schema once before starting the application:
+
+```sh
+docker compose up -d postgres
+docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U kopds -d kopds \
+  < db/migrations/001_initial.sql
+```
 
 ```sh
 docker compose up --build
@@ -88,3 +100,46 @@ The GitHub Actions workflow builds two Linux image variants:
 
 Docker images always use a Linux kernel; GitHub-hosted macOS runners cannot
 produce a native macOS container image.
+
+## Project structure
+
+The application follows a bounded-context DDD structure:
+
+```text
+src/
+├── bootstrap/                 # Composition root and Wt setup
+├── shell/                     # Application layout and routing
+├── shared/infrastructure/     # Shared database session factory
+└── contexts/
+    ├── membership/            # Member aggregate and CRUD
+    ├── contribution_configuration/ # Contribution type aggregate and CRUD
+    └── system_health/         # Framework-independent health checks
+```
+
+Future business capabilities should be added as sibling bounded contexts rather
+than placed directly in the shell or infrastructure directories.
+
+The current business contexts are:
+
+- `membership`: member listing, generated `KOPDS-0001` numbers, editing,
+  soft deletion, and restoration.
+- `contribution_configuration`: contribution-type rules and inline localized
+  labels, including the required `id-ID` translation.
+
+All database tables contain `created_at`, `updated_at`, and nullable
+`deleted_at`. PostgreSQL triggers maintain `updated_at`; application deletes set
+`deleted_at` and never physically remove records.
+
+## Verification checklist
+
+Run the native or container build yourself, then verify:
+
+- `/` redirects to `/dashboard`.
+- Sidebar links update the URL and selected state.
+- The sidebar becomes an off-canvas menu on narrow screens.
+- `/system-status` reports healthy, unavailable, and unconfigured PostgreSQL.
+- The Refresh button updates health without restarting the application.
+- `/members` supports create, view, edit, search, pagination, delete, and restore.
+- `/configuration/contribution-types` manages rules and inline translations.
+- Created, updated, and deleted timestamps reflect database mutations.
+- An unknown internal path displays the Not Found page.

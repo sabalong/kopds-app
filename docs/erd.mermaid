@@ -1,0 +1,53 @@
+erDiagram
+    MEMBER {
+        uuid id PK
+        string member_number UK
+        string full_name
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    CONTRIBUTION_TYPE {
+        uuid id PK
+        string code UK
+        string category
+        boolean is_mandatory
+        boolean requires_active_loan
+        boolean is_refundable
+        int display_order
+        boolean active
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    CONTRIBUTION_TYPE_I18N {
+        uuid id PK
+        uuid contribution_type_id FK
+        string locale
+        string name
+        string short_name
+        string description
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    MEMBER_TRANSACTION {
+        uuid id PK
+        uuid member_id FK
+        uuid contribution_type_id FK
+        decimal amount
+        string transaction_type
+        datetime transaction_date
+        string reference_type
+        uuid reference_id
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    MEMBER ||--o{ MEMBER_TRANSACTION : has
+    CONTRIBUTION_TYPE ||--o{ MEMBER_TRANSACTION : classifies
+    CONTRIBUTION_TYPE ||--o{ CONTRIBUTION_TYPE_I18N : translated

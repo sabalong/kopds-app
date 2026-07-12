@@ -13,10 +13,14 @@ RUN apt-get update \
       bison \
       build-essential \
       ca-certificates \
+      cmake \
       curl \
       flex \
       git \
+      libgl-dev \
       libtool \
+      libxi-dev \
+      libxmu-dev \
       ninja-build \
       pkg-config \
       python3 \
@@ -33,7 +37,11 @@ RUN git clone https://github.com/microsoft/vcpkg.git . \
 WORKDIR /src
 COPY vcpkg.json ./
 
-RUN case "${TARGETARCH}" in \
+RUN --mount=type=cache,target=/root/.cache/vcpkg/archives \
+    --mount=type=cache,target=/opt/vcpkg/downloads \
+    --mount=type=cache,target=/opt/vcpkg/buildtrees \
+    --mount=type=cache,target=/opt/vcpkg/packages \
+    case "${TARGETARCH}" in \
       amd64) triplet=x64-linux-dynamic ;; \
       arm64) triplet=arm64-linux-dynamic ;; \
       *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
@@ -66,7 +74,10 @@ RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       ca-certificates \
       curl \
+      libgl1 \
       libstdc++6 \
+      libxi6 \
+      libxmu6 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/kopds

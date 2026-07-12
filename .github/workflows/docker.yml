@@ -20,9 +20,9 @@ jobs:
           - name: Linux AMD64
             platform: linux/amd64
             cache-scope: linux-amd64
-          - name: Docker Desktop macOS ARM64
-            platform: linux/arm64
-            cache-scope: linux-arm64
+          # - name: Docker Desktop macOS ARM64
+          #   platform: linux/arm64
+          #   cache-scope: linux-arm64
 
     steps:
       - name: Check out source
@@ -39,6 +39,7 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
+          load: true
           push: false
           tags: kopds-app:ci
           cache-from: type=gha,scope=${{ matrix.cache-scope }}
